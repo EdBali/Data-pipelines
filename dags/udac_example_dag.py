@@ -16,8 +16,8 @@ LOG_DATA = config.get('S3','LOG_DATA')
 
 SONG_DATA = config.get('S3','SONG_DATA')
 
-AWS_KEY = os.environ.get('AWS_KEY')
-AWS_SECRET = os.environ.get('AWS_SECRET')
+#AWS_KEY = os.environ.get('AWS_KEY')
+#AWS_SECRET = os.environ.get('AWS_SECRET')
 
 default_args = {
     'owner': 'eddie',
@@ -46,6 +46,7 @@ stage_events_to_redshift = StageToRedshiftOperator(
     dag=dag,
     table="staging_events",
     redshift_conn_id="redshift",
+    aws_credential_id="aws_credentials",
     s3_bucket="udac-data-pipelines",
     s3_key=LOG_DATA,
 )
@@ -55,6 +56,7 @@ stage_songs_to_redshift = StageToRedshiftOperator(
     dag=dag,
     table="staging_songs",
     redshift_conn_id="redshift",
+    aws_credential_id="aws_credentials",
     s3_bucket="udac-data-pipelines",
     s3_key=SONG_DATA,
 )

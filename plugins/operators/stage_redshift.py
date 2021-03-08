@@ -8,7 +8,8 @@ class StageToRedshiftOperator(BaseOperator):
     copy_sql = """
         COPY {}
         FROM '{}'
-
+        ACCESS_KEY_ID '{}' 
+        SECRET_ACCESS_KEY '{}'
         IGNOREHEADER {}
         DELIMITER '{}'
     """
@@ -17,6 +18,7 @@ class StageToRedshiftOperator(BaseOperator):
     def __init__(self,
 
                  redshift_conn_id="",
+                 aws_credential_id="",
 
                  table="",
                  s3_bucket="",
@@ -36,7 +38,8 @@ class StageToRedshiftOperator(BaseOperator):
         
 
     def execute(self, context):
-        
+        aws_hook = AwsHook(self.aws_credential_id)
+        credentials = aws_hook.get_credentials()
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
 
         self.log.info("Clearing data from destination Redshift table")
@@ -48,7 +51,8 @@ class StageToRedshiftOperator(BaseOperator):
         formatted_sql = StageToRedshiftOperator.copy_sql.format(
             self.table,
             s3_path,
-
+            credentials.access_key, 
+            credentials.secret_key,
             self.ignore_headers,
             self.delimiter
         )
